@@ -18,6 +18,8 @@ import Loader from "@/components/loader";
 import { cn } from "@/lib/utils";
 import UserAvatar from "@/components/user-avatar";
 import BotAvatar from "@/components/bot-avatar";
+import Markdown from 'react-markdown'
+
 
 const ConversationPage = () => {
 
@@ -39,7 +41,7 @@ const ConversationPage = () => {
                 content: values.prompt
             }
             const newMessages = [...messages, userMessage];
-            const response = await axios.post("/api/conversation", {
+            const response = await axios.post("/api/code", {
                 messages: newMessages
             });
             setMessages((current) => [...current, userMessage, response.data])
@@ -55,11 +57,11 @@ const ConversationPage = () => {
 
     return (<div>
         <Heading
-            title="Conversation"
-            description="Chat with your friends"
+            title="Code Generation"
+            description="Generate Code using AI"
             icon={MessageSquare}
-            iconColor="text-violet-500"
-            bgColor="bg-violet-500/10"
+            iconColor="text-green-500"
+            bgColor="bg-green-500/10"
         />
         <div className="px-4 lg:px-8">
             <div>
@@ -108,12 +110,25 @@ const ConversationPage = () => {
                 <div className="flex flex-col-reverse gap-y-4">
                     {messages.map((message, index) => (
                         <div key={index}
-                        className={cn("p-8 w-full flex items-start gap-x-8 rounded-lg", 
-                        message.role === "user" ? "bg-white border" : 
-                        "bg-muted")}
+                            className={cn("p-8 w-full flex items-start gap-x-8 rounded-lg",
+                                message.role === "user" ? "bg-white border" :
+                                    "bg-muted")}
                         >
-                          {message.role === "user" ? <UserAvatar/> : <BotAvatar/>}  
-                          <p className="text-sm">{message.content?.toString()}</p>
+                            {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
+                            <Markdown className="text-sm overflow-hidden leading-7" children={message.content?.toString()}
+                                components={
+                                    {
+                                        pre: ({ node, ...props }) => (
+                                            <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
+                                                <pre {...props} />
+                                            </div>
+                                        ),
+                                        code: ({ node, ...props }) => (
+                                            <code className="bg-black/10 p-1" {...props} />
+                                        )
+                                    }
+                                }
+                            />
                         </div>
                     ))}
                 </div>
